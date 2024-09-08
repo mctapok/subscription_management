@@ -1,0 +1,15 @@
+server:
+  port: 8190
+spring:
+  application:
+    name: subscription-service
+  datasource:
+    url: jdbc:postgresql://localhost:5436/subscription-management
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: postgres
+  jpa:
+    show-sql: true
+  data:
+    jdbc:
+      dialect: postgresql
