@@ -23,6 +23,8 @@
 	</developers>
 	<modules>
 		<module>subscription-service</module>
+		<module>client-service</module>
+		<module>payment-service</module>
 	</modules>
 	<scm>
 		<connection/>

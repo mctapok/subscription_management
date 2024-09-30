@@ -1,13 +1,13 @@
-package ru.gavrilov.project.subscription.service.backend;
+package ru.gavrilov.project.client.service.backend;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class SubscriptionManagementApplication {
+public class ClientServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SubscriptionManagementApplication.class, args);
+		SpringApplication.run(ClientServiceApplication.class, args);
 	}
 
 }
