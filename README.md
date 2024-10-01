@@ -1,3 +1,3 @@
 ### problems
- - docker-compose
-    _ в client-service error: не видит родительский pox.xml
+ - docker-compose  
+    в client-service error: не видит родительский pox.xml
