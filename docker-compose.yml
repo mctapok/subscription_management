@@ -1,35 +1,21 @@
+version: '3.8'
+
 services:
   postgres:
     image: postgres:latest
     environment:
+      POSTGRES_DB: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-     - "5436:5432"
+      - "5436:5432"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
 
-  subscription-service:
-    build: ./subscription-service
-    depends_on:
-      - postgres
+  zookeeper:
+    image: wurstmeister/zookeeper:latest
     ports:
-      - "8081:8080"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/subscription-service
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
-
-  client-service:
-    build: ./client-service
-    depends_on:
-      - postgres
-    ports:
-      - "8082:8080"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/client-service
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
+      - "2181:2181"
 
   kafka:
     image: wurstmeister/kafka:latest
@@ -39,12 +25,35 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-
-  zookeeper:
-    image: wurstmeister/zookeeper:latest
-    ports:
-      - "2181:2181"
+      KAFKA_CREATE_TOPICS: "client-created:1:1,account-created:1:1,history:1:1"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - zookeeper
+
+  client-service:
+    build:
+      context: .
+      dockerfile: ./client-service/Dockerfile
+    ports:
+      - "8082:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/client_service
+    depends_on:
+      - postgres
+      - kafka
+
+  subscription-service:
+    build:
+      context: .
+      dockerfile: ./subscription-service/Dockerfile
+    ports:
+      - "8081:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/subscription_service
+    depends_on:
+      - postgres
+      - kafka
+
 volumes:
-  postgres-data:
+  postgres_data:

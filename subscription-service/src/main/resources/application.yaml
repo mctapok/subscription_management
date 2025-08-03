@@ -1,10 +1,10 @@
 server:
-  port: 8190
+  port: 8080
 spring:
   application:
     name: subscription-service
   datasource:
-    url: jdbc:postgresql://localhost:5436/subscription-service
+    url: jdbc:postgresql://postgres:5432/subscription_service
     driver-class-name: org.postgresql.Driver
     username: postgres
     password: postgres
@@ -13,7 +13,7 @@ spring:
     properties:
       hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: kafka:9092
     consumer:
       group-id: subscription-service-group
       auto-offset-reset: earliest
