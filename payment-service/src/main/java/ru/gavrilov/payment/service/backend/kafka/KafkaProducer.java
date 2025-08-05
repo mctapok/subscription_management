@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import ru.gavrilov.payment.service.backend.dtos.AccountCreatedDto;
+import ru.gavrilov.payment.service.backend.dtos.PaymentActionRequestDto;
 
 @Service
 @AllArgsConstructor
@@ -12,9 +13,14 @@ import ru.gavrilov.payment.service.backend.dtos.AccountCreatedDto;
 public class KafkaProducer {
     private final KafkaTemplate<String, AccountCreatedDto> kafkaTemplate;
     private static final String TOPIC = "account-created";
+    private static final String TOPIC_B = "payment-action";
 
     public void sendMessage(AccountCreatedDto eventDto) {
         kafkaTemplate.send(TOPIC, eventDto);
         log.info("Message sent {}", eventDto);
+    }
+
+    public void paymentActionMessage(){
+
     }
 }

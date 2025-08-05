@@ -9,9 +9,8 @@ import java.math.BigDecimal;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class KafkaEventDto {
-    private Long clientId;
-    private String title;
-    private String message;
-    private String service;
+public class RequestActionDto {
+    private long clientId;
+    private String serviceName;
+    private BigDecimal servicePrice;
 }
