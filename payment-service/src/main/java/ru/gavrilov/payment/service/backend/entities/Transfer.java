@@ -27,6 +27,8 @@ public class Transfer {
     String serviceName;
     @Column(name = "price")
     BigDecimal price;
+    @Column(name = "isSuccess")
+    boolean isSuccess;
 
     @Column(name = "created_at")
     @CreationTimestamp

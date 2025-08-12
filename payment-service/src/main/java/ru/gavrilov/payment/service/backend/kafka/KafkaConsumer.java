@@ -23,14 +23,15 @@ public class KafkaConsumer {
             ClientCreatedDto clientCreated = mapper.readValue(message, ClientCreatedDto.class);
             paymentService.createAccount(clientCreated);
             log.info("Created account {}", clientCreated);
-        }catch (Exception e) {
+        } catch (Exception e) {
             log.error(e.getMessage());
         }
     }
+
     @KafkaListener(topics = "payment_message", groupId = "payment-service-group2")
-    public void subscriptionEvent(String message){
+    public void subscriptionEvent(String message) {
         try {
-           PaymentActionRequestDto paymentActionRequestDto = mapper.readValue(message, PaymentActionRequestDto.class);
+            PaymentActionRequestDto paymentActionRequestDto = mapper.readValue(message, PaymentActionRequestDto.class);
             paymentService.executePayment(paymentActionRequestDto);
             log.info("message {}, topic payment_message", paymentActionRequestDto);
         } catch (JsonProcessingException e) {

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.gavrilov.payment.service.backend.dtos.AccountCreatedDto;
 import ru.gavrilov.payment.service.backend.dtos.ClientCreatedDto;
 import ru.gavrilov.payment.service.backend.dtos.PaymentActionRequestDto;
+import ru.gavrilov.payment.service.backend.dtos.PaymentActionResponseDto;
 import ru.gavrilov.payment.service.backend.entities.Account;
 import ru.gavrilov.payment.service.backend.entities.Transfer;
 import ru.gavrilov.payment.service.backend.erorrs.AppLogicException;
@@ -38,17 +39,31 @@ public class PaymentService {
     }
 
     @Transactional
-    public void executePayment(PaymentActionRequestDto paymentActionRequestDto) {
+    public Transfer executePayment(PaymentActionRequestDto paymentActionRequestDto) {
         Transfer transfer = new Transfer(
                 paymentActionRequestDto.getClientId(),
                 paymentActionRequestDto.getServiceName(),
                 paymentActionRequestDto.getServicePrice()
-                );
+        );
         transfersRepository.save(transfer);
 
         Optional<Account> isPresentAccount = accountRepository.findByClientId(paymentActionRequestDto.getClientId());
         Account account = isPresentAccount.orElseThrow(() -> new AppLogicException("NOT FOUND ERROR", "account not found client Id"));
 
+        PaymentActionResponseDto paymentActionResponseDto = new PaymentActionResponseDto(
+                transfer.getId(),
+                account.getClientId(),
+                false
+        );
 
+        if (account.getBalance().compareTo(paymentActionRequestDto.getServicePrice()) >= 0) {
+            account.setBalance(account.getBalance().subtract(paymentActionRequestDto.getServicePrice()));
+            accountRepository.save(account);
+            paymentActionResponseDto.setSuccess(true);
+            kafkaProducer.paymentExecuteMessage(paymentActionResponseDto);
+            return transfer;
+        }
+        kafkaProducer.paymentExecuteMessage(paymentActionResponseDto);
+        throw new AppLogicException("BALANCE ERROR","Недостаточно средств на счете");
     }
 }
