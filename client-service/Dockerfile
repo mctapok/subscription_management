@@ -9,13 +9,13 @@
 ################################################################################
 
 # Create a stage for resolving and downloading dependencies.
-FROM eclipse-temurin:17-jdk-jammy as deps
+FROM eclipse-temurin:17-jdk-jammy AS deps
 
 WORKDIR /build
 
 # Copy the mvnw wrapper with executable permissions.
-COPY --chmod=0755 mvnw mvnw
-COPY .mvn/ .mvn/
+COPY . .
+
 
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /root/.m2 so that subsequent builds don't have to
@@ -31,15 +31,16 @@ RUN --mount=type=bind,source=pom.xml,target=pom.xml \
 # jar and instead relies on an application server like Apache Tomcat, you'll need to update this
 # stage with the correct filename of your package and update the base image of the "final" stage
 # use the relevant app server, e.g., using tomcat (https://hub.docker.com/_/tomcat/) as a base image.
-FROM deps as package
+FROM deps AS package
 
 WORKDIR /build
 
-COPY ./src /src
+COPY . .
 RUN --mount=type=bind,source=pom.xml,target=pom.xml \
     --mount=type=cache,target=/root/.m2 \
     ./mvnw package -DskipTests && \
-    mv target/$(./mvnw help:evaluate -Dexpression=project.artifactId -q -DforceStdout)-$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout).jar target/app.jar
+    mkdir -p target && \
+    mv client-service/target/client-service-0.0.1-SNAPSHOT.jar target/app.jar
 
 ################################################################################
 
@@ -48,7 +49,9 @@ RUN --mount=type=bind,source=pom.xml,target=pom.xml \
 # the packaged application into separate layers that can be copied into the final stage.
 # See Spring's docs for reference:
 # https://docs.spring.io/spring-boot/docs/current/reference/html/container-images.html
-FROM package as extract
+
+FROM package AS extract
+
 
 WORKDIR /build
 
@@ -87,6 +90,7 @@ COPY --from=extract build/target/extracted/spring-boot-loader/ ./
 COPY --from=extract build/target/extracted/snapshot-dependencies/ ./
 COPY --from=extract build/target/extracted/application/ ./
 
-EXPOSE 8191
+EXPOSE 8080
+
 
 ENTRYPOINT [ "java", "org.springframework.boot.loader.launch.JarLauncher" ]

@@ -12,6 +12,8 @@ import ru.gavrilov.project.subscription.service.backend.dtos.RequestSubscription
 import ru.gavrilov.project.subscription.service.backend.dtos.ResponseSubscriptionDto;
 import ru.gavrilov.project.subscription.service.backend.entities.Subscription;
 import ru.gavrilov.project.subscription.service.backend.entities.SubscriptionPlan;
+import ru.gavrilov.project.subscription.service.backend.errors.RepeatSubscriptionException;
+import ru.gavrilov.project.subscription.service.backend.errors.ResourceNotFoundException;
 import ru.gavrilov.project.subscription.service.backend.kafka.KafkaProducer;
 import ru.gavrilov.project.subscription.service.backend.repositories.SubscriptionPlanRepository;
 import ru.gavrilov.project.subscription.service.backend.repositories.SubscriptionRepository;
@@ -34,7 +36,12 @@ public class SubscriptionService {
     }
 
     public ResponseSubscriptionDto createNewSubscription(Long clientId, RequestSubscriptionDto requestSubscriptionDto) {
+        if(repository.findByClientIdAndSubscriptionTitle(clientId, requestSubscriptionDto.getSubscriptionTitle()).isPresent()){
+            throw new RepeatSubscriptionException("Подписка уже активна");
+        }
+
         SubscriptionPlan subscriptionPlan = plansRepository.findBySubscriptionTitle(requestSubscriptionDto.getSubscriptionTitle());
+
         Subscription newSubscription = new Subscription(clientId,
                 subscriptionPlan.getId(),
                 subscriptionPlan.getSubscriptionTitle(),
@@ -45,7 +52,7 @@ public class SubscriptionService {
         KafkaEventDto eventDto = new KafkaEventDto(clientId, newSubscription.getSubscriptionTitle(), "new subscription", "subscription-service");
         kafkaProducer.sendMessage(eventDto);
 
-        return mapEntityToDto(newSubscription, newS-> new ResponseSubscriptionDto(
+        return mapEntityToDto(newSubscription, newS -> new ResponseSubscriptionDto(
                 newS.getSubscriptionId(),
                 newS.getSubscriptionTitle(),
                 newS.getPrice(),
@@ -55,9 +62,8 @@ public class SubscriptionService {
 
     public void unsubscribe(Long clientId, RequestSubscriptionDto requestSubscriptionDto) {
         Subscription unsubscribe = repository.findByClientIdAndSubscriptionId(clientId, requestSubscriptionDto.getSubscriptionId())
-                .orElseThrow(() -> new RuntimeException("subscription not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("У Вас нет такой подписки"));
         repository.delete(unsubscribe);
-
     }
 
     private List<ResponseSubscriptionDto> returnSubscriptions(List<Subscription> subscriptions, List<SubscriptionPlan> plans) {
