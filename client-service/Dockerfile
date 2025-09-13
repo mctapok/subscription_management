@@ -16,7 +16,6 @@ WORKDIR /build
 # Copy the mvnw wrapper with executable permissions.
 COPY . .
 
-
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /root/.m2 so that subsequent builds don't have to
 # re-download packages.
@@ -49,10 +48,7 @@ RUN --mount=type=bind,source=pom.xml,target=pom.xml \
 # the packaged application into separate layers that can be copied into the final stage.
 # See Spring's docs for reference:
 # https://docs.spring.io/spring-boot/docs/current/reference/html/container-images.html
-
 FROM package AS extract
-
-
 WORKDIR /build
 
 RUN java -Djarmode=layertools -jar target/app.jar extract --destination target/extracted
@@ -91,6 +87,5 @@ COPY --from=extract build/target/extracted/snapshot-dependencies/ ./
 COPY --from=extract build/target/extracted/application/ ./
 
 EXPOSE 8080
-
 
 ENTRYPOINT [ "java", "org.springframework.boot.loader.launch.JarLauncher" ]

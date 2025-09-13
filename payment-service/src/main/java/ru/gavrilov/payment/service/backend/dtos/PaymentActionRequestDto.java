@@ -1,16 +1,16 @@
-package ru.gavrilov.project.subscription.service.backend.dtos;
+package ru.gavrilov.payment.service.backend.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import java.math.BigDecimal;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class KafkaEventDto {
+public class PaymentActionRequestDto {
     private Long clientId;
-    private String title;
-    private String message;
-    private String service;
+    private BigDecimal servicePrice;
+    private String serviceName;
 }

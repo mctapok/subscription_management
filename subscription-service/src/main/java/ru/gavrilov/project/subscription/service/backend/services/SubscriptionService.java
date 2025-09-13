@@ -47,6 +47,9 @@ public class SubscriptionService {
                 subscriptionPlan.getSubscriptionTitle(),
                 subscriptionPlan.getPrice(),
                 "Active");
+
+        kafkaProducer.requestPaymentAction(requestSubscriptionDto);
+
         newSubscription = repository.save(newSubscription);
 
         KafkaEventDto eventDto = new KafkaEventDto(clientId, newSubscription.getSubscriptionTitle(), "new subscription", "subscription-service");
