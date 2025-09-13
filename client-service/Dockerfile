@@ -49,7 +49,6 @@ RUN --mount=type=bind,source=pom.xml,target=pom.xml \
 # See Spring's docs for reference:
 # https://docs.spring.io/spring-boot/docs/current/reference/html/container-images.html
 FROM package AS extract
-
 WORKDIR /build
 
 RUN java -Djarmode=layertools -jar target/app.jar extract --destination target/extracted
