@@ -18,15 +18,27 @@
 - **subscription-service** — управление подписками, создание, обновление, удаление, связь с клиентами и платежами.
 - **payment-service** — обработка платежей, интеграция с внешними платёжными системами.
 
-+----------------+       Kafka       +------------------+
-|  client-service| <---------------> | subscription-svc |
-+----------------+                   +------------------+
-                                          ↑
-                                       Kafka events
-                                          ↓
-                                   +---------------+
-                                   | payment-svc   |
-                                   +---------------+
+## Architecture
+
+```mermaid
+flowchart LR
+    ClientService[client-service]
+    SubscriptionService[subscription-service]
+    PaymentService[payment-service]
+    Kafka[(Kafka)]
+    DB1[(PostgreSQL)]
+    DB2[(PostgreSQL)]
+    DB3[(PostgreSQL)]
+
+    ClientService --> DB1
+    SubscriptionService --> DB2
+    PaymentService --> DB3
+
+    ClientService -->|account-created| Kafka
+    Kafka -->|subscription-events| SubscriptionService
+    Kafka -->|payment-events| PaymentService
+    PaymentService -->|payment-result| Kafka
+
 
 ## Технологии
 - Java 17, Spring Boot
