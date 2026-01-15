@@ -4,10 +4,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.gavrilov.project.subscription.service.backend.errors.AppLogicException;
-import ru.gavrilov.project.subscription.service.backend.errors.ErrorDto;
-import ru.gavrilov.project.subscription.service.backend.errors.RepeatSubscriptionException;
-import ru.gavrilov.project.subscription.service.backend.errors.ResourceNotFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {

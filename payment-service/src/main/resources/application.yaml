@@ -4,7 +4,7 @@ spring:
   application:
     name: payment-service
   datasource:
-    url: jdbc:postgresql://localhost:5436/payment-service
+    url: jdbc:postgresql://payment-service:5432/payment-service
     driver-class-name: org.postgresql.Driver
     username: postgres
     password: postgres
@@ -13,7 +13,7 @@ spring:
     properties:
       hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: kafka:9092
     consumer:
       group-id: payment-service-group
       auto-offset-reset: earliest
